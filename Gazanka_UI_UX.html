@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>GazAnka - Smart Traffic Operator Portal</title>
+    
+    <!-- Tailwind CSS with Forms and Container Queries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Google Material Symbols (Outlined & Filled Support) -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    
+    <!-- Chart.js CDN for High-fidelity Interactive Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            light: "#af101a",
+                            dark: "#ffb3ac",
+                            primary: "#af101a",
+                            secondary: "#5f5e5e"
+                        },
+                        darkBg: "#0B0F19",
+                        darkSurface: "#161F30",
+                        darkBorder: "#24324D",
+                        lightBg: "#F4F6F8",
+                        lightSurface: "#FFFFFF",
+                        lightBorder: "#E0E0E0",
+                    },
+                    fontFamily: {
+                        sans: ["Plus Jakarta Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS Styles -->
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Hide scrollbars but keep functionality */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Smooth tab transition animations */
+        .tab-panel {
+            transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+        }
+        
+        /* Custom Glowing Shadow for active status */
+        .glow-success {
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+        }
+        .glow-danger {
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Pulsing camera recording icon */
+        @keyframes pulse-recording {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.9); }
+        }
+        .animate-recording {
+            animation: pulse-recording 1.5s infinite ease-in-out;
+        }
+
+        /* Smooth Bounding Box floating animation */
+        @keyframes float-box {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(15px, -10px); }
+            50% { transform: translate(-5px, 20px); }
+            75% { transform: translate(-20px, 5px); }
+        }
+        .animate-box-float {
+            animation: float-box 6s infinite ease-in-out;
+        }
+        
+        @keyframes float-box-slow {
+            0%, 100% { transform: translate(0, 0); }
+            30% { transform: translate(-10px, 15px); }
+            60% { transform: translate(20px, -5px); }
+            80% { transform: translate(-15px, -10px); }
+        }
+        .animate-box-slow-float {
+            animation: float-box-slow 9s infinite ease-in-out;
+        }
+
+        /* Slide down animations for live alerts */
+        @keyframes slide-down-alert {
+            0% { opacity: 0; transform: translateY(-15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .alert-entry {
+            animation: slide-down-alert 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Loader animation */
+        @keyframes rotate-loader {
+            100% { transform: rotate(360deg); }
+        }
+        .animate-rotate-loader {
+            animation: rotate-loader 1.2s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-lightBg dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans min-h-screen transition-colors duration-300">
+
+    <!-- ================= AUTH CONTAINER ================= -->
+    <div id="auth-container" class="flex min-h-screen items-center justify-center p-4 relative overflow-hidden">
+        <!-- Interactive Background Glows -->
+        <div class="absolute w-[400px] h-[400px] rounded-full bg-red-600/10 blur-[100px] top-1/4 left-1/4 -z-10 animate-pulse"></div>
+        <div class="absolute w-[300px] h-[300px] rounded-full bg-blue-600/10 blur-[100px] bottom-1/4 right-1/4 -z-10 animate-pulse" style="animation-delay: 2s;"></div>
+
+        <main class="w-full max-w-[420px] bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl shadow-xl p-8 backdrop-blur-md bg-white/90 dark:bg-darkSurface/90 flex flex-col transition-all">
+            <!-- Logo & Brand Header -->
+            <div class="flex flex-col items-center text-center mb-8">
+                <div class="w-16 h-16 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/40 rounded-2xl flex items-center justify-center shadow-sm mb-4">
+                    <span class="material-symbols-outlined text-brand-primary dark:text-brand-dark text-4xl font-bold">shield_person</span>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">GazAnka</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Ankara Intelligent Traffic Management System</p>
+                <div class="h-0.5 w-12 bg-red-600 dark:bg-red-500 rounded-full mt-4"></div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-5" onsubmit="handleLogin(event)">
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300" for="phone-number">Operator Phone Number</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">smartphone</span>
+                        <input
+                            class="w-full h-12 pl-12 pr-4 rounded-xl border border-lightBorder dark:border-darkBorder bg-slate-50 dark:bg-darkBg/50 text-slate-900 dark:text-white focus:border-red-600 dark:focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-slate-400 font-medium"
+                            id="phone-number"
+                            name="phone-number"
+                            placeholder="+90 5XX XXX XX XX"
+                            required
+                            type="tel"
+                        />
+                    </div>
+                </div>
+
+                <button
+                    class="w-full h-12 bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/10 hover:shadow-red-600/20 active:scale-[0.98]"
+                    type="submit">
+                    <span>Verify with Turkcell</span>
+                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                </button>
+
+                <div class="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-4">
+                    <span class="material-symbols-outlined text-sm font-bold text-green-500">verified_user</span>
+                    <span>Direct SIM identification • No OTP needed</span>
+                </div>
+            </form>
+
+            <!-- Loading Authentication overlay -->
+            <div id="login-loading" class="hidden flex flex-col items-center justify-center py-10 space-y-6">
+                <div class="relative w-16 h-16 flex items-center justify-center">
+                    <div class="w-16 h-16 rounded-full border-4 border-slate-200 dark:border-slate-800 border-t-red-600 dark:border-t-red-500 animate-rotate-loader"></div>
+                    <span class="material-symbols-outlined text-red-600 dark:text-red-500 absolute text-2xl">vpn_key</span>
+                </div>
+                <div class="text-center space-y-2">
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Connecting Securely</h3>
+                    <p id="loading-status" class="text-xs text-slate-500 dark:text-slate-400 font-medium transition-all duration-300">Contacting Turkcell API secure gateways...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= DASHBOARD CONTAINER ================= -->
+    <div id="dashboard-container" class="hidden flex flex-col min-h-screen">
+        <!-- Top Navigation Bar -->
+        <nav class="sticky top-0 z-50 bg-white/80 dark:bg-darkSurface/80 border-b border-lightBorder dark:border-darkBorder backdrop-blur-md transition-colors duration-300">
+            <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+                <!-- Left Nav: Brand & Tabs -->
+                <div class="flex items-center gap-10">
+                    <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('live-detection')">
+                        <div class="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center shadow-md shadow-red-600/10">
+                            <span class="material-symbols-outlined text-white text-xl font-bold">shield</span>
+                        </div>
+                        <span class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">GazAnka</span>
+                    </div>
+
+                    <!-- Desktop Navigation Links -->
+                    <div class="hidden md:flex items-center gap-1 h-16">
+                        <button id="nav-btn-live-detection" onclick="switchTab('live-detection')" class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-red-600 dark:text-red-500 bg-red-50 dark:bg-red-950/20">
+                            Live Detection
+                        </button>
+                        <button id="nav-btn-alert-history" onclick="switchTab('alert-history')" class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            Alert History
+                        </button>
+                        <button id="nav-btn-system-analytics" onclick="switchTab('system-analytics')" class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            System Analytics
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Nav: Actions & Profile -->
+                <div class="flex items-center gap-4">
+                    <!-- Light/Dark Mode Switcher -->
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-xl border border-lightBorder dark:border-darkBorder hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-all">
+                        <span id="theme-icon" class="material-symbols-outlined text-xl">dark_mode</span>
+                    </button>
+
+                    <!-- Notifications Dropdown Trigger -->
+                    <div class="relative">
+                        <button onclick="toggleNotifications()" class="p-2 rounded-xl border border-lightBorder dark:border-darkBorder hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-all relative">
+                            <span class="material-symbols-outlined text-xl">notifications</span>
+                            <span id="notification-badge" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-600 ring-2 ring-white dark:ring-darkSurface animate-pulse"></span>
+                        </button>
+                        
+                        <!-- Notifications Panel -->
+                        <div id="notifications-panel" class="hidden absolute right-0 mt-3 w-80 bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl shadow-xl p-4 overflow-hidden z-50">
+                            <div class="flex items-center justify-between border-b border-lightBorder dark:border-darkBorder pb-2 mb-2">
+                                <h4 class="font-bold text-sm text-slate-900 dark:text-white">Active Alerts</h4>
+                                <button onclick="clearNotifications()" class="text-xs font-semibold text-red-600 dark:text-red-500 hover:underline">Mark read</button>
+                            </div>
+                            <div id="notifications-list" class="space-y-2 max-h-60 overflow-y-auto scrollbar-hide text-xs">
+                                <!-- Dynamic entries -->
+                                <div class="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/20 border-l-4 border-red-500 flex justify-between items-start">
+                                    <div>
+                                        <p class="font-bold text-slate-900 dark:text-white">Speeding Alert: 34 ABC 123</p>
+                                        <p class="text-slate-500 dark:text-slate-400 mt-0.5">72 km/h detected at CAM-A-104</p>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 font-semibold">Just now</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Trigger -->
+                    <button onclick="openSettingsModal()" class="p-2 rounded-xl border border-lightBorder dark:border-darkBorder hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-xl">settings</span>
+                    </button>
+
+                    <!-- Divider -->
+                    <div class="h-6 w-px bg-lightBorder dark:border-darkBorder hidden sm:block"></div>
+
+                    <!-- Profile Info -->
+                    <div class="flex items-center gap-3 pl-1">
+                        <div class="w-9 h-9 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 flex items-center justify-center cursor-pointer shadow-sm relative group" onclick="toggleLogoutMenu()">
+                            <img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUpPagMzEdIILXfWue29vqMrXIIFXyRULWSczrZvyLERMTCgXrG31-kZb1zatubr64lE8jy88nCA-AetgGPuUSkKn2abCaJPaR34UOjSWNq6nDKngZkB_a8AnmXeMOTBKKtR-Knftc7wRR8K9e2CEYv0PsJFfKF9NB0CpIprPbMGKegDiODUHUxpmOkhUgTHLLwm6PbsjwSY7rPwexf3Tmwq529DwLeImKfeKjXlBviCBXdq44RFqwA_xqvbFUlCWX08-DivSYy18" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div class="hidden w-full h-full items-center justify-center bg-red-600 text-white font-bold text-sm">OP</div>
+                        </div>
+                        <div class="hidden lg:flex flex-col text-left">
+                            <span class="text-sm font-bold text-slate-900 dark:text-white leading-tight">Operator #01</span>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold tracking-wider uppercase">Turkcell Verified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Bottom Menu (Smooth & Responsive) -->
+            <div class="md:hidden flex border-t border-lightBorder dark:border-darkBorder bg-white dark:bg-darkSurface">
+                <button onclick="switchTab('live-detection')" id="mobile-btn-live-detection" class="flex-1 py-3 text-xs font-bold flex flex-col items-center gap-1 text-red-600 dark:text-red-500">
+                    <span class="material-symbols-outlined text-lg">videocam</span>
+                    <span>Live</span>
+                </button>
+                <button onclick="switchTab('alert-history')" id="mobile-btn-alert-history" class="flex-1 py-3 text-xs font-semibold flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400">
+                    <span class="material-symbols-outlined text-lg animate-pulse-none">history</span>
+                    <span>History</span>
+                </button>
+                <button onclick="switchTab('system-analytics')" id="mobile-btn-system-analytics" class="flex-1 py-3 text-xs font-semibold flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400">
+                    <span class="material-symbols-outlined text-lg">monitoring</span>
+                    <span>Analytics</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Workspace -->
+        <main class="flex-grow max-w-[1440px] w-full mx-auto p-4 md:p-8 space-y-6">
+
+            <!-- ================= TAB 1: LIVE DETECTION ================= -->
+            <div id="panel-live-detection" class="tab-panel space-y-6">
+                <!-- Tab Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Live Detection Feed</h1>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Monitoring active streams across Ankara District 01.</p>
+                    </div>
+                    <!-- System Status Indicator -->
+                    <div class="flex items-center gap-2 bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder px-4 py-2 rounded-xl shadow-sm self-start sm:self-auto">
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-500 glow-success animate-pulse"></span>
+                        <span id="system-status-text" class="text-xs font-bold text-slate-800 dark:text-slate-200">Live Traffic Engine Online</span>
+                    </div>
+                </div>
+
+                <!-- Live Grid: Camera View + Detections Sidebar -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Camera Stream Box (65%) -->
+                    <div class="lg:col-span-8 flex flex-col gap-4">
+                        <div class="bg-white dark:bg-darkSurface rounded-2xl border border-lightBorder dark:border-darkBorder p-4 flex flex-col relative overflow-hidden h-[340px] sm:h-[480px] md:h-[550px] shadow-sm">
+                            <div class="flex justify-between items-center mb-3.5 z-10">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-red-600 dark:text-red-500">videocam</span>
+                                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Camera CAM-A-104 (Highway A1 North)</h2>
+                                </div>
+                                <span class="text-[10px] font-extrabold tracking-widest text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-recording"></span>
+                                    <span>LIVE FEED</span>
+                                </span>
+                            </div>
+                            
+                            <!-- Bounding Box Video Container -->
+                            <div class="relative w-full flex-grow bg-slate-950 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+                                <!-- Dynamic Traffic Photo Background -->
+                                <div class="absolute inset-0 bg-cover bg-center opacity-85 transition-all duration-1000" id="live-video-stream"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDTTJwYHtDn988W4MTFOuypaSe53HLB4tFEHFxSx-HxVETJPkdr-Hq3eE737lT4Kyf9p3eEIOzswVz93Ks_t6bUVW38AG6hwthGv0gdqc6EXa6QX68pseTkZ4RoPCYR0pJ64i3IylevJWR0JuyzJS3q1Yj71RW2bVV9gEyO8ILKS6gwJVBBToW7wQY4iYfJ_8xdtPvC1y6WbC4Xdgoe2nwsaPcaLOMkGZ_jWaqK4nWdwTYj8slqPCLhGTMsUuL-PmZ_Ngt03_ju7bY');">
+                                </div>
+                                
+                                <!-- Readability overlays -->
+                                <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none"></div>
+                                
+                                <!-- Bounding Boxes (Simulated traffic recognition flow) -->
+                                <!-- Vehicle Box -->
+                                <div id="live-vehicle-box" class="absolute top-[25%] left-[35%] w-[40%] h-[45%] border-2 border-dashed border-green-400 rounded-xl bg-green-500/10 z-20 transition-all duration-[2000ms] ease-in-out">
+                                    <div class="absolute -top-6 left-[-2px] bg-green-500 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded-t-md tracking-wider flex items-center gap-1 shadow-sm">
+                                        <span class="material-symbols-outlined text-sm font-bold">directions_car</span>
+                                        <span>VEHICLE DETECTED (CONF: 98.4%)</span>
+                                    </div>
+                                    <!-- License Plate Box -->
+                                    <div id="live-plate-box" class="absolute bottom-[8%] left-[25%] w-[50%] h-[18%] border-2 border-dashed border-red-500 rounded-lg bg-red-500/25 flex items-center justify-center transition-all duration-[1200ms]">
+                                        <div class="absolute -top-5 left-[-2px] bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-t-md tracking-widest shadow-sm">
+                                            PLATE SCAN
+                                        </div>
+                                        <span id="live-plate-scan-text" class="text-white text-xs font-mono font-extrabold tracking-wider bg-black/70 px-2 py-0.5 rounded border border-white/20 select-all">34 ABC 123</span>
+                                    </div>
+                                </div>
+
+                                <!-- Overlay Stats info -->
+                                <div class="absolute bottom-4 left-4 text-white font-mono text-xs opacity-80 bg-slate-900/60 backdrop-blur-md px-3 py-1.5 rounded-lg flex items-center gap-3 border border-white/10">
+                                    <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span> 1080p Stream</span>
+                                    <span>•</span>
+                                    <span>GPS: 39.9334° N, 32.8597° E</span>
+                                    <span>•</span>
+                                    <span id="live-fps">60 FPS</span>
+                                </div>
+                                <div class="absolute top-4 right-4 bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1 rounded-lg text-white font-mono text-xs flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-xs text-red-500">schedule</span>
+                                    <span id="live-timestamp">14:23:45</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statistics summary block (3 Metrics cards) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-lightBorder dark:border-darkBorder p-5 shadow-sm flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Vehicles Scanned</div>
+                                    <div id="stat-scanned-count" class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">1,402</div>
+                                </div>
+                                <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                    <span class="material-symbols-outlined text-2xl font-bold">monitoring</span>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-lightBorder dark:border-darkBorder p-5 shadow-sm flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Average Speed</div>
+                                    <div class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">64 <span class="text-xs font-semibold text-slate-400">km/h</span></div>
+                                </div>
+                                <div class="w-11 h-11 rounded-xl bg-green-50 dark:bg-green-950/30 flex items-center justify-center text-green-600 dark:text-green-400">
+                                    <span class="material-symbols-outlined text-2xl">speed</span>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-lightBorder dark:border-darkBorder p-5 shadow-sm flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Alerts</div>
+                                    <div id="stat-alerts-count" class="text-2xl md:text-3xl font-extrabold text-red-600 dark:text-red-500 mt-1">12</div>
+                                </div>
+                                <div class="w-11 h-11 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                                    <span class="material-symbols-outlined text-2xl">warning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Alerts Sidebar (35%) -->
+                    <div class="lg:col-span-4 flex flex-col h-[520px] sm:h-[650px] md:h-[680px]">
+                        <div class="flex justify-between items-center mb-3 px-1">
+                            <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">Recent Detections</h3>
+                            <button id="pause-feed-btn" onclick="toggleFeedPause()" class="text-xs font-bold px-3 py-1.5 rounded-lg border border-lightBorder dark:border-darkBorder text-red-600 dark:text-red-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">pause</span>
+                                <span>Pause Feed</span>
+                            </button>
+                        </div>
+
+                        <!-- Scrollable Feed Container -->
+                        <div id="live-detections-list" class="flex-grow overflow-y-auto scrollbar-hide flex flex-col gap-3 pr-1 pb-4">
+                            <!-- Dynamically generated elements will go here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 2: ALERT HISTORY ================= -->
+            <div id="panel-alert-history" class="tab-panel hidden space-y-6">
+                <!-- Tab Header & Actions -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Alert History</h1>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Review and manage recent traffic violations across all active cameras.</p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                        <!-- Search input -->
+                        <div class="relative flex-grow sm:flex-grow-0">
+                            <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                            <input
+                                id="history-search"
+                                oninput="handleHistorySearch(this.value)"
+                                class="w-full sm:w-60 pl-10 pr-4 py-2 bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-600 transition-all placeholder:text-slate-400 font-medium"
+                                placeholder="Search plate or class..."
+                                type="text"
+                            />
+                        </div>
+                        <!-- Export Action button -->
+                        <button onclick="triggerDataExport()" class="flex items-center justify-center gap-1.5 px-4.5 py-2.5 bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm">
+                            <span class="material-symbols-outlined text-lg">download</span>
+                            <span>Export Data</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Tags & Results Counter -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-2" id="filter-chips-container">
+                        <button onclick="setHistoryFilter('all')" id="filter-btn-all" class="px-4 py-2 text-xs font-bold rounded-lg border border-red-600 dark:border-red-500 text-white bg-red-600 dark:bg-red-500 shadow-sm transition-all">
+                            All Categories
+                        </button>
+                        <button onclick="setHistoryFilter('speed')" id="filter-btn-speed" class="px-4 py-2 text-xs font-semibold rounded-lg border border-lightBorder dark:border-darkBorder text-slate-600 dark:text-slate-400 bg-white dark:bg-darkSurface hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                            Speed Violations
+                        </button>
+                        <button onclick="setHistoryFilter('driver')" id="filter-btn-driver" class="px-4 py-2 text-xs font-semibold rounded-lg border border-lightBorder dark:border-darkBorder text-slate-600 dark:text-slate-400 bg-white dark:bg-darkSurface hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                            Driver Behavior
+                        </button>
+                        <button onclick="setHistoryFilter('plate')" id="filter-btn-plate" class="px-4 py-2 text-xs font-semibold rounded-lg border border-lightBorder dark:border-darkBorder text-slate-600 dark:text-slate-400 bg-white dark:bg-darkSurface hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                            Plate Recognition
+                        </button>
+                    </div>
+                    <span id="results-count" class="text-xs font-semibold text-slate-500 dark:text-slate-400">Showing 9 of 156 alerts</span>
+                </div>
+
+                <!-- History Data Table -->
+                <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl overflow-hidden shadow-sm transition-colors duration-300">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-lightBorder dark:border-darkBorder bg-slate-50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400">
+                                    <th class="px-6 py-4.5 text-xs font-bold uppercase tracking-wider">License Plate</th>
+                                    <th class="px-6 py-4.5 text-xs font-bold uppercase tracking-wider">Timestamp</th>
+                                    <th class="px-6 py-4.5 text-xs font-bold uppercase tracking-wider">Speed Recorded</th>
+                                    <th class="px-6 py-4.5 text-xs font-bold uppercase tracking-wider">Violation Class</th>
+                                    <th class="px-6 py-4.5 text-xs font-bold uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-4.5 text-xs font-bold uppercase tracking-wider text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body" class="divide-y divide-lightBorder dark:divide-darkBorder text-sm">
+                                <!-- Dynamic rows rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Shell -->
+                    <div class="px-6 py-4 border-t border-lightBorder dark:border-darkBorder flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/10">
+                        <button onclick="changePage(-1)" id="prev-page-btn" class="px-4 py-2 border border-lightBorder dark:border-darkBorder rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 bg-white dark:bg-darkSurface hover:bg-slate-50 dark:hover:bg-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            Previous
+                        </button>
+                        <div class="flex items-center gap-1.5" id="pagination-numbers">
+                            <!-- Dyn buttons -->
+                        </div>
+                        <button onclick="changePage(1)" id="next-page-btn" class="px-4 py-2 border border-lightBorder dark:border-darkBorder rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 bg-white dark:bg-darkSurface hover:bg-slate-50 dark:hover:bg-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 3: SYSTEM ANALYTICS ================= -->
+            <div id="panel-system-analytics" class="tab-panel hidden space-y-6">
+                <!-- Tab Header -->
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">System Analytics</h1>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Real-time performance metrics and connected equipment telemetry.</p>
+                </div>
+
+                <!-- 4 KPI Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-5 shadow-sm flex flex-col justify-between h-36">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Violations</span>
+                            <span class="material-symbols-outlined text-red-600 dark:text-red-500 font-bold">warning</span>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-extrabold text-slate-900 dark:text-white">2,840</div>
+                            <div class="text-[11px] font-semibold text-red-600 dark:text-red-400 mt-1.5 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm font-bold">arrow_upward</span>
+                                <span>+12.4%</span>
+                                <span class="text-slate-400 dark:text-slate-500">vs last week</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-5 shadow-sm flex flex-col justify-between h-36">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Cameras</span>
+                            <span class="material-symbols-outlined text-green-600 dark:text-green-500">videocam</span>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-extrabold text-slate-900 dark:text-white">124</div>
+                            <div class="text-[11px] font-semibold text-green-600 dark:text-green-400 mt-1.5 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm font-bold">check_circle</span>
+                                <span>All units online</span>
+                                <span class="text-slate-400 dark:text-slate-500">100% capacity</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-5 shadow-sm flex flex-col justify-between h-36">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Average Accuracy</span>
+                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">my_location</span>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-extrabold text-slate-900 dark:text-white">98.2%</div>
+                            <div class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 mt-1.5 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm font-bold">trending_up</span>
+                                <span>+0.5%</span>
+                                <span class="text-slate-400 dark:text-slate-500">model refinement</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-5 shadow-sm flex flex-col justify-between h-36">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">System Uptime</span>
+                            <span class="material-symbols-outlined text-purple-600 dark:text-purple-400">speed</span>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-extrabold text-slate-900 dark:text-white">99.9%</div>
+                            <div class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm font-bold">schedule</span>
+                                <span>Active for 30d</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section (Grid line & bar charts) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-5 shadow-sm space-y-4">
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Violation Trends (24 Hours)</h3>
+                        <div class="w-full h-72">
+                            <canvas id="trendsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-5 shadow-sm space-y-4">
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Violations by Category</h3>
+                        <div class="w-full h-72">
+                            <canvas id="categoriesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Device Telemetry Status Grid -->
+                <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-5 shadow-sm space-y-4">
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Device Telemetry Status</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="p-4 rounded-xl border border-lightBorder dark:border-darkBorder bg-slate-50/50 dark:bg-slate-800/20 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500 glow-success"></span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">CAM-N-101</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Highway A1 North</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-400">Online</span>
+                        </div>
+                        <div class="p-4 rounded-xl border border-red-200 dark:border-red-950 bg-red-50/10 dark:bg-red-950/10 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-600 glow-danger animate-pulse"></span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-red-600 dark:text-red-400">CAM-S-204</h4>
+                                    <p class="text-xs text-red-500/80 dark:text-red-400/80">City Center Bypass</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-extrabold text-red-600 dark:text-red-400 flex items-center gap-0.5"><span class="material-symbols-outlined text-sm font-bold">warning</span> Alert</span>
+                        </div>
+                        <div class="p-4 rounded-xl border border-lightBorder dark:border-darkBorder bg-slate-50/50 dark:bg-slate-800/20 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500 glow-success"></span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">CAM-E-305</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Industrial Park East</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-400">Online</span>
+                        </div>
+                        <div class="p-4 rounded-xl border border-lightBorder dark:border-darkBorder bg-slate-50/50 dark:bg-slate-800/20 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500 glow-success"></span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">CAM-W-412</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Westside Avenue</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-400">Online</span>
+                        </div>
+                        <div class="p-4 rounded-xl border border-lightBorder dark:border-darkBorder bg-slate-50/50 dark:bg-slate-800/20 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500 glow-success"></span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">CAM-C-550</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Main St Intersection</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-400">Online</span>
+                        </div>
+                        <div class="p-4 rounded-xl border border-lightBorder dark:border-darkBorder bg-slate-50/20 dark:bg-slate-950/20 flex items-center justify-between opacity-60">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-500 dark:text-slate-400">CAM-N-102</h4>
+                                    <p class="text-xs text-slate-400 dark:text-slate-500">Highway A1 South</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-400 flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">cloud_off</span> Offline</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALS & FLOATING TOASTS ================= -->
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+        <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder w-full max-w-md rounded-2xl shadow-xl p-6 relative">
+            <div class="flex items-center justify-between border-b border-lightBorder dark:border-darkBorder pb-3 mb-4">
+                <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">System Settings</h3>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Primary Server URI</label>
+                    <input class="w-full h-11 px-3.5 border border-lightBorder dark:border-darkBorder rounded-xl bg-slate-50 dark:bg-darkBg/50 text-sm font-medium" type="text" value="https://api.gazanka-ankara.gov.tr/v2" disabled />
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Model Sensitivity Threshold</label>
+                    <input class="w-full" type="range" min="50" max="100" value="85" />
+                    <div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase"><span>Fast (50%)</span><span>Optimal (85%)</span><span>Strict (100%)</span></div>
+                </div>
+                <div class="pt-2 flex justify-end gap-2.5">
+                    <button onclick="closeSettingsModal()" class="px-4 py-2 text-sm font-bold rounded-lg border border-lightBorder dark:border-darkBorder hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">Close</button>
+                    <button onclick="saveSettings()" class="px-4 py-2 text-sm font-bold rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-600/10">Apply Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Global Toast -->
+    <div id="global-toast" class="fixed bottom-6 right-6 z-[100] transform translate-y-24 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-3 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3.5 rounded-xl shadow-2xl border border-slate-800 dark:border-slate-200">
+        <span id="toast-icon" class="material-symbols-outlined text-green-500">check_circle</span>
+        <span id="toast-msg" class="text-xs font-bold font-sans">Operation completed!</span>
+    </div>
+
+
+    <!-- ================= CLIENT JAVASCRIPT ================= -->
+    <script>
+        // State variables
+        let state = {
+            isAuthenticated: false,
+            activeTab: 'live-detection',
+            theme: 'light',
+            feedPaused: false,
+            scannedCount: 1402,
+            alertsCount: 12,
+            historySearch: '',
+            historyFilter: 'all',
+            historyPage: 1,
+            historyPerPage: 5
+        };
+
+        // Static original list data
+        const originalAlerts = [
+            { id: 1, plate: "34 ABC 123", time: "14:32", speed: "72 km/h", violation: "Speeding", status: "Flagged", type: "speed" },
+            { id: 2, plate: "06 XYZ 987", time: "14:29", speed: "55 km/h", violation: "Phone Use", status: "Flagged", type: "driver" },
+            { id: 3, plate: "35 DEF 456", time: "14:25", speed: "61 km/h", violation: "No Seatbelt", status: "Flagged", type: "driver" },
+            { id: 4, plate: "07 GHI 789", time: "14:15", speed: "85 km/h", violation: "Speeding", status: "Processed", type: "speed" },
+            { id: 5, plate: "34 JKL 012", time: "13:58", speed: "50 km/h", violation: "Plate Unreadable", status: "Processed", type: "plate" },
+            { id: 6, plate: "06 MNO 345", time: "13:45", speed: "92 km/h", violation: "Speeding", status: "Flagged", type: "speed" },
+            { id: 7, plate: "35 PQR 678", time: "13:12", speed: "58 km/h", violation: "No Seatbelt", status: "Processed", type: "driver" },
+            { id: 8, plate: "34 STU 901", time: "12:50", speed: "65 km/h", violation: "Normal Status", status: "Processed", type: "all" },
+            { id: 9, plate: "06 VWX 234", time: "12:35", speed: "78 km/h", violation: "Speeding", status: "Processed", type: "speed" }
+        ];
+
+        // Copy array for run-time mutations
+        let alertsList = [...originalAlerts];
+        
+        // Active stream simulation images list
+        const trafficImages = [
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuDTTJwYHtDn988W4MTFOuypaSe53HLB4tFEHFxSx-HxVETJPkdr-Hq3eE737lT4Kyf9p3eEIOzswVz93Ks_t6bUVW38AG6hwthGv0gdqc6EXa6QX68pseTkZ4RoPCYR0pJ64i3IylevJWR0JuyzJS3q1Yj71RW2bVV9gEyO8ILKS6gwJVBBToW7wQY4iYfJ_8xdtPvC1y6WbC4Xdgoe2nwsaPcaLOMkGZ_jWaqK4nWdwTYj8slqPCLhGTMsUuL-PmZ_Ngt03_ju7bY",
+            "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&q=80&w=800",
+            "https://images.unsplash.com/photo-1519003722824-192514ad74b4?auto=format&fit=crop&q=80&w=800",
+            "https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&q=80&w=800"
+        ];
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            // Apply theme configuration
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemPrefersDark) {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+                state.theme = 'dark';
+                document.getElementById('theme-icon').textContent = 'light_mode';
+            }
+            
+            // Build recent detections sidebar
+            renderRecentDetections();
+            
+            // Start clock
+            setInterval(updateClock, 1000);
+            
+            // Start live traffic generator loop
+            setInterval(liveSimulationLoop, 3000);
+
+            // Redraw charts
+            initCharts();
+        });
+
+        // clock utility
+        function updateClock() {
+            const timestampEl = document.getElementById('live-timestamp');
+            if (timestampEl) {
+                const now = new Date();
+                timestampEl.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+            }
+        }
+
+        // Dark/Light Mode Switcher
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                state.theme = 'light';
+                document.getElementById('theme-icon').textContent = 'dark_mode';
+                showToast('visibility', 'Switched to Light Theme');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                state.theme = 'dark';
+                document.getElementById('theme-icon').textContent = 'light_mode';
+                showToast('dark_mode', 'Switched to Dark Theme');
+            }
+            // Update charts colors on theme switch
+            initCharts();
+        }
+
+        // Turkcell Login Handler
+        function handleLogin(event) {
+            event.preventDefault();
+            const form = document.getElementById('login-form');
+            const loading = document.getElementById('login-loading');
+            const statusText = document.getElementById('loading-status');
+            
+            form.classList.add('hidden');
+            loading.classList.remove('hidden');
+            
+            const steps = [
+                "Locating device SIM connection...",
+                "Negotiating Turkcell API secure keys...",
+                "Establishing AES-256 operator session...",
+                "Authentication successful! Redirecting..."
+            ];
+            
+            let currentStep = 0;
+            const stepInterval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    statusText.textContent = steps[currentStep];
+                    currentStep++;
+                } else {
+                    clearInterval(stepInterval);
+                    state.isAuthenticated = true;
+                    document.getElementById('auth-container').classList.add('hidden');
+                    document.getElementById('dashboard-container').classList.remove('hidden');
+                    showToast('verified', 'Verified Access Granted');
+                    initCharts(); // Reinitialize charts size
+                }
+            }, 650);
+        }
+
+        // Tab Switching Engine
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            
+            // Hide all tab panels
+            document.getElementById('panel-live-detection').classList.add('hidden');
+            document.getElementById('panel-alert-history').classList.add('hidden');
+            document.getElementById('panel-system-analytics').classList.add('hidden');
+            
+            // Show requested panel
+            document.getElementById(`panel-${tabId}`).classList.remove('hidden');
+            
+            // Desktop active classes reset
+            const tabs = ['live-detection', 'alert-history', 'system-analytics'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`nav-btn-${t}`);
+                if (t === tabId) {
+                    btn.className = "px-4 py-2 text-sm font-semibold rounded-lg transition-all text-red-600 dark:text-red-500 bg-red-50 dark:bg-red-950/20";
+                } else {
+                    btn.className = "px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50";
+                }
+            });
+
+            // Mobile active classes reset
+            tabs.forEach(t => {
+                const btn = document.getElementById(`mobile-btn-${t}`);
+                if (t === tabId) {
+                    btn.className = "flex-1 py-3 text-xs font-bold flex flex-col items-center gap-1 text-red-600 dark:text-red-500";
+                } else {
+                    btn.className = "flex-1 py-3 text-xs font-semibold flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400";
+                }
+            });
+            
+            if (tabId === 'alert-history') {
+                renderHistoryTable();
+            } else if (tabId === 'system-analytics') {
+                setTimeout(initCharts, 50); // Small timeout for canvas sizing
+            }
+        }
+
+        // Simulation Loop
+        function toggleFeedPause() {
+            state.feedPaused = !state.feedPaused;
+            const btn = document.getElementById('pause-feed-btn');
+            const statusEl = document.getElementById('system-status-text');
+            
+            if (state.feedPaused) {
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">play_arrow</span><span>Resume Feed</span>`;
+                statusEl.textContent = "Live Traffic Engine Paused";
+                statusEl.className = "text-xs font-bold text-slate-500";
+                showToast('pause_circle', 'Feed paused');
+            } else {
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">pause</span><span>Pause Feed</span>`;
+                statusEl.textContent = "Live Traffic Engine Online";
+                statusEl.className = "text-xs font-bold text-slate-800 dark:text-slate-200";
+                showToast('play_arrow', 'Feed resumed');
+            }
+        }
+
+        // Mock Live Stream Data Generator
+        function liveSimulationLoop() {
+            if (state.feedPaused || !state.isAuthenticated) return;
+            
+            // Randomize stream background image to simulate cars passing
+            const streamImg = document.getElementById('live-video-stream');
+            if (streamImg) {
+                const randomImg = trafficImages[Math.floor(Math.random() * trafficImages.length)];
+                streamImg.style.backgroundImage = `url('${randomImg}')`;
+            }
+            
+            // Move bounding boxes to mimic tracker
+            const vehBox = document.getElementById('live-vehicle-box');
+            const plateBoxText = document.getElementById('live-plate-scan-text');
+            if (vehBox) {
+                // Random coordinates within bounds
+                const randomTop = Math.floor(Math.random() * 20) + 15; // 15% - 35%
+                const randomLeft = Math.floor(Math.random() * 25) + 20; // 20% - 45%
+                const randomWidth = Math.floor(Math.random() * 15) + 30; // 30% - 45%
+                const randomHeight = Math.floor(Math.random() * 15) + 35; // 35% - 50%
+                
+                vehBox.style.top = `${randomTop}%`;
+                vehBox.style.left = `${randomLeft}%`;
+                vehBox.style.width = `${randomWidth}%`;
+                vehBox.style.height = `${randomHeight}%`;
+            }
+
+            // Generate a random mock car detection
+            const prefixes = ["06", "34", "35", "07", "01", "38"];
+            const midLetter = ["ABC", "XYZ", "DEF", "GHI", "JKL", "MNO", "PQR", "TUV"];
+            const digits = Math.floor(100 + Math.random() * 900);
+            const generatedPlate = `${prefixes[Math.floor(Math.random()*prefixes.length)]} ${midLetter[Math.floor(Math.random()*midLetter.length)]} ${digits}`;
+            
+            // Update scanning label overlay text
+            if (plateBoxText) {
+                plateBoxText.textContent = generatedPlate;
+            }
+
+            const speeds = [55, 62, 68, 71, 74, 82, 89, 95];
+            const randomSpeed = speeds[Math.floor(Math.random()*speeds.length)];
+            
+            let violationClass = "Normal Status";
+            let type = "all";
+            if (randomSpeed > 80) {
+                violationClass = "Speeding";
+                type = "speed";
+            } else if (Math.random() > 0.75) {
+                const driverBehaviors = ["Phone Use Alert", "Seatbelt Violation"];
+                violationClass = driverBehaviors[Math.floor(Math.random()*driverBehaviors.length)];
+                type = "driver";
+            }
+            
+            // Assemble alert entity
+            const newAlert = {
+                id: Date.now(),
+                plate: generatedPlate,
+                time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                speed: `${randomSpeed} km/h`,
+                violation: violationClass,
+                status: violationClass === "Normal Status" ? "Processed" : "Flagged",
+                type: type
+            };
+
+            // Prepend new alert to run-time database list
+            alertsList.unshift(newAlert);
+            if (alertsList.length > 50) alertsList.pop(); // Keep database clean
+            
+            // Update scanning stats counts
+            state.scannedCount++;
+            document.getElementById('stat-scanned-count').textContent = state.scannedCount.toLocaleString();
+            
+            if (newAlert.status === "Flagged") {
+                state.alertsCount++;
+                document.getElementById('stat-alerts-count').textContent = state.alertsCount;
+                
+                // Add notification item
+                addNewNotification(newAlert);
+            }
+
+            // Redraw feed view
+            renderRecentDetections();
+            
+            // If viewing history panel, refresh page
+            if (state.activeTab === 'alert-history') {
+                renderHistoryTable();
+            }
+        }
+
+        // Render live alerts cards list
+        function renderRecentDetections() {
+            const listEl = document.getElementById('live-detections-list');
+            if (!listEl) return;
+            
+            listEl.innerHTML = '';
+            
+            // Display top 6 detections
+            const listToDraw = alertsList.slice(0, 6);
+            
+            listToDraw.forEach(item => {
+                const isViolation = item.status === "Flagged";
+                const cardBorderClass = isViolation ? "border-red-200 dark:border-red-950/80" : "border-slate-200 dark:border-slate-800";
+                const indicatorClass = isViolation ? "bg-red-600 dark:bg-red-500" : "bg-slate-300 dark:bg-slate-700";
+                const badgeColorClass = isViolation ? "bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400";
+                
+                const cardHtml = `
+                    <div class="alert-entry bg-white dark:bg-darkSurface rounded-xl border ${cardBorderClass} p-4 flex items-center justify-between shadow-sm relative overflow-hidden group cursor-pointer hover:shadow-md transition-all">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-600 ${isViolation ? '' : 'hidden'}"></div>
+                        <div class="flex flex-col gap-1.5 pl-1.5">
+                            <span class="text-sm font-extrabold text-slate-900 dark:text-white tracking-wide">${item.plate}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs font-semibold">
+                                    <span class="material-symbols-outlined text-sm">speed</span>
+                                    <span>${item.speed}</span>
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-semibold">${item.time}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg ${badgeColorClass}">
+                                ${item.violation}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                listEl.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Notification center handling
+        function toggleNotifications() {
+            const panel = document.getElementById('notifications-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function clearNotifications() {
+            document.getElementById('notifications-list').innerHTML = `<p class="text-slate-400 dark:text-slate-500 py-3 text-center font-medium">All notifications cleared</p>`;
+            document.getElementById('notification-badge').classList.add('hidden');
+        }
+
+        function addNewNotification(alertObj) {
+            const list = document.getElementById('notifications-list');
+            const badge = document.getElementById('notification-badge');
+            
+            badge.classList.remove('hidden');
+            
+            const newNotifHtml = `
+                <div class="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/20 border-l-4 border-red-500 flex justify-between items-start alert-entry">
+                    <div>
+                        <p class="font-bold text-slate-900 dark:text-white">${alertObj.violation}: ${alertObj.plate}</p>
+                        <p class="text-slate-500 dark:text-slate-400 mt-0.5">${alertObj.speed} detected</p>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-semibold">Just now</span>
+                </div>
+            `;
+            
+            // Remove "No notifications" placeholder if any
+            if (list.querySelector('p')) {
+                list.innerHTML = '';
+            }
+            
+            list.insertAdjacentHTML('afterbegin', newNotifHtml);
+        }
+
+        // ================= ALERT HISTORY CONTROLLER =================
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            // Apply searches & category filters
+            let filteredList = alertsList.filter(item => {
+                // Search condition
+                const plateMatch = item.plate.toLowerCase().includes(state.historySearch.toLowerCase());
+                const classMatch = item.violation.toLowerCase().includes(state.historySearch.toLowerCase());
+                const searchPass = plateMatch || classMatch;
+                
+                // Category Filter condition
+                let filterPass = true;
+                if (state.historyFilter !== 'all') {
+                    filterPass = item.type === state.historyFilter;
+                }
+                
+                return searchPass && filterPass;
+            });
+            
+            // Total match records update
+            document.getElementById('results-count').textContent = `Showing ${filteredList.length} of ${alertsList.length} alerts`;
+            
+            // Apply Pagination slicing
+            const totalPages = Math.ceil(filteredList.length / state.historyPerPage) || 1;
+            if (state.historyPage > totalPages) state.historyPage = totalPages;
+            
+            const startIdx = (state.historyPage - 1) * state.historyPerPage;
+            const paginatedList = filteredList.slice(startIdx, startIdx + state.historyPerPage);
+            
+            // Update paging buttons
+            document.getElementById('prev-page-btn').disabled = state.historyPage === 1;
+            document.getElementById('next-page-btn').disabled = state.historyPage === totalPages;
+            
+            // Render pagination numbers
+            const pageContainer = document.getElementById('pagination-numbers');
+            pageContainer.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const isActive = i === state.historyPage;
+                const activeClasses = isActive ? "bg-red-600 text-white border-red-600" : "bg-white dark:bg-darkSurface border-lightBorder dark:border-darkBorder text-slate-700 dark:text-slate-300 hover:bg-slate-50";
+                pageContainer.insertAdjacentHTML('beforeend', `
+                    <button onclick="goToPage(${i})" class="w-8 h-8 flex items-center justify-center rounded-lg border text-xs font-bold transition-all ${activeClasses}">${i}</button>
+                `);
+            }
+            
+            // Draw rows
+            if (paginatedList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500 font-semibold">
+                            No violations found matching query.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            paginatedList.forEach(item => {
+                const isViolation = item.status === "Flagged";
+                const rowIcon = item.type === 'speed' ? 'speed' : item.type === 'driver' ? 'person_alert' : 'local_police';
+                const statusBadgeClass = isViolation ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400" : "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400";
+                
+                const rowHtml = `
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-150">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                                    <span class="material-symbols-outlined text-base font-bold">${rowIcon}</span>
+                                </div>
+                                <span class="font-extrabold text-slate-900 dark:text-white tracking-wide">${item.plate}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-medium">${item.time}</td>
+                        <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">${item.speed}</td>
+                        <td class="px-6 py-4 text-slate-900 dark:text-white font-bold">${item.violation}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${statusBadgeClass}">
+                                ${item.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="showToast('info', 'Incident detail menu offline')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-all">
+                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+        }
+
+        function handleHistorySearch(val) {
+            state.historySearch = val;
+            state.historyPage = 1;
+            renderHistoryTable();
+        }
+
+        function setHistoryFilter(cat) {
+            state.historyFilter = cat;
+            state.historyPage = 1;
+            
+            // Toggle active classes in HTML
+            const buttons = ['all', 'speed', 'driver', 'plate'];
+            buttons.forEach(b => {
+                const btn = document.getElementById(`filter-btn-${b}`);
+                if (b === cat) {
+                    btn.className = "px-4 py-2 text-xs font-bold rounded-lg border border-red-600 dark:border-red-500 text-white bg-red-600 dark:bg-red-500 shadow-sm transition-all";
+                } else {
+                    btn.className = "px-4 py-2 text-xs font-semibold rounded-lg border border-lightBorder dark:border-darkBorder text-slate-600 dark:text-slate-400 bg-white dark:bg-darkSurface hover:bg-slate-50 dark:hover:bg-slate-800 transition-all";
+                }
+            });
+            
+            renderHistoryTable();
+        }
+
+        function changePage(direction) {
+            state.historyPage += direction;
+            renderHistoryTable();
+        }
+
+        function goToPage(pageNum) {
+            state.historyPage = pageNum;
+            renderHistoryTable();
+        }
+
+        function triggerDataExport() {
+            showToast('downloading', 'Preparing files for CSV export...');
+            setTimeout(() => {
+                showToast('check_circle', 'Export file downloaded: GazAnka_Alerts_Ankara.csv');
+            }, 1500);
+        }
+
+        // ================= CHART RENDER IMPLEMENTATION =================
+        let trendsChart, categoriesChart;
+        
+        function initCharts() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(226, 232, 240, 0.6)';
+            const textColor = isDark ? '#94A3B8' : '#64748B';
+            
+            // Destroys previous chart instance if existing to prevent size memory leak
+            if (trendsChart) trendsChart.destroy();
+            if (categoriesChart) categoriesChart.destroy();
+
+            // Setup Trends Line Chart
+            const ctxTrends = document.getElementById('trendsChart');
+            if (ctxTrends) {
+                const ctx = ctxTrends.getContext('2d');
+                const redGradient = ctx.createLinearGradient(0, 0, 0, 300);
+                redGradient.addColorStop(0, 'rgba(239, 68, 68, 0.35)');
+                redGradient.addColorStop(1, 'rgba(239, 68, 68, 0.02)');
+
+                trendsChart = new Chart(ctxTrends, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                        datasets: [{
+                            label: 'Speeding Alerts',
+                            data: [65, 45, 120, 185, 140, 210, 95],
+                            borderColor: '#EF4444',
+                            borderWidth: 3.5,
+                            fill: true,
+                            backgroundColor: redGradient,
+                            tension: 0.35,
+                            pointBackgroundColor: '#EF4444',
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                grid: { color: gridColor },
+                                ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', weight: 'bold' } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Setup Categories Bar Chart
+            const ctxCategories = document.getElementById('categoriesChart');
+            if (ctxCategories) {
+                categoriesChart = new Chart(ctxCategories, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Speeding', 'Phone Use', 'Seatbelt', 'Plate Recognition'],
+                        datasets: [{
+                            data: [85, 45, 30, 95],
+                            backgroundColor: ['#EF4444', '#F59E0B', '#3B82F6', '#10B981'],
+                            borderRadius: 10,
+                            barThickness: 24
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                grid: { color: gridColor },
+                                ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', weight: 'bold' } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Settings Modal control
+        function openSettingsModal() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            closeSettingsModal();
+            showToast('check_circle', 'Model sensitivity parameters updated');
+        }
+
+        // Global Toast Notifications
+        function showToast(icon, message) {
+            const toast = document.getElementById('global-toast');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastMsg = document.getElementById('toast-msg');
+            
+            toastIcon.textContent = icon;
+            toastMsg.textContent = message;
+            
+            // Pop up
+            toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            // Close after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Logout
+        function toggleLogoutMenu() {
+            if (confirm("Sign out from Operator session?")) {
+                state.isAuthenticated = false;
+                document.getElementById('dashboard-container').classList.add('hidden');
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('login-loading').classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
